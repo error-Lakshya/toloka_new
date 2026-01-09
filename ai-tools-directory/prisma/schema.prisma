@@ -1,0 +1,65 @@
+// Prisma Schema for AI Tools Directory (MVP)
+// Generator
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Datasource
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PricingModel {
+  free
+  paid
+  freemium
+  subscription
+  one_time
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  slug      String    @unique
+  name_ar   String
+  name_en   String?
+  description String?
+  tools     ToolCategory[]
+}
+
+model Tool {
+  id                 String   @id @default(uuid())
+  name               String
+  slug               String   @unique
+  description        String?
+  official_url       String
+  pricing_model      PricingModel
+  has_api            Boolean  @default(false)
+  tags               String[] @db.Text[]
+  languages_supported String[] @db.Text[]
+  media              Json
+  pros               String[] @db.Text[]
+  cons               String[] @db.Text[]
+  popularity_score   Float?
+  source_citation    Json
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  categories         ToolCategory[]
+}
+
+model ToolCategory {
+  tool_id     String
+  category_id Int
+  tool        Tool     @relation(fields: [tool_id], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  @@id([tool_id, category_id])
+}
+
+model Submission {
+  id            String   @id @default(uuid())
+  payload       Json
+  status        String   @default("pending")
+  reviewer_notes String?
+  created_at    DateTime @default(now())
+  reviewed_at   DateTime?
+}
