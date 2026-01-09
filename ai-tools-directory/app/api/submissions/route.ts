@@ -12,11 +12,20 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const payload = await req.json()
-  const { ok, errors } = validateToolPayload(payload)
-  if (!ok) {
-    return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 })
+  try {
+    const payload = await req.json()
+    const { ok, errors } = validateToolPayload(payload)
+    if (!ok) {
+      return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 })
+    }
+    const created = await prisma.submission.create({ data: { payload, status: 'pending' } })
+    return NextResponse.json({ id: created.id, status: created.status })
+  } catch (error: any) {
+    console.error('Submission API error:', error)
+    return NextResponse.json({
+      error: 'Internal server error',
+      message: error.message || 'Unknown error',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 })
   }
-  const created = await prisma.submission.create({ data: { payload, status: 'pending' } })
-  return NextResponse.json({ id: created.id, status: created.status })
 }

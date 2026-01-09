@@ -22,12 +22,16 @@ export default function SubmitToolPage() {
       setStatus('✅ Submission sent for review')
       form.reset()
     } else {
-      const data = await res.json()
-      if (data.details && data.details.length > 0) {
-        const errors = data.details.map((err: any) => `${err.instancePath || 'Field'}: ${err.message}`).join('; ')
-        setStatus(`❌ Validation failed: ${errors}`)
-      } else {
-        setStatus('❌ Submission failed — check fields')
+      try {
+        const data = await res.json()
+        if (data.details && data.details.length > 0) {
+          const errors = data.details.map((err: any) => `${err.instancePath || 'Field'}: ${err.message}`).join('; ')
+          setStatus(`❌ Validation failed: ${errors}`)
+        } else {
+          setStatus(`❌ Submission failed: ${data.error || 'check fields'}`)
+        }
+      } catch (e) {
+        setStatus(`❌ Server error (${res.status}): Please check the server logs`)
       }
     }
   }
@@ -42,7 +46,7 @@ export default function SubmitToolPage() {
         </div>
         <div>
           <label className="block mb-1">Slug (lowercase, no spaces)</label>
-          <input className="w-full border rounded p-2" name="slug" pattern="^[a-z0-9-]+$" required />
+          <input className="w-full border rounded p-2" name="slug" pattern="^[a-z0-9\-]+$" required />
         </div>
         <div>
           <label className="block mb-1">Description</label>
