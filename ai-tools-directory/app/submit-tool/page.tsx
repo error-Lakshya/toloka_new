@@ -18,8 +18,18 @@ export default function SubmitToolPage() {
       languages_supported: (form.elements.namedItem('languages_supported') as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean)
     }
     const res = await fetch('/api/submissions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-    if (res.ok) setStatus('Submission sent for review')
-    else setStatus('Submission failed — check fields')
+    if (res.ok) {
+      setStatus('✅ Submission sent for review')
+      form.reset()
+    } else {
+      const data = await res.json()
+      if (data.details && data.details.length > 0) {
+        const errors = data.details.map((err: any) => `${err.instancePath || 'Field'}: ${err.message}`).join('; ')
+        setStatus(`❌ Validation failed: ${errors}`)
+      } else {
+        setStatus('❌ Submission failed — check fields')
+      }
+    }
   }
 
   return (
@@ -64,8 +74,8 @@ export default function SubmitToolPage() {
           <input className="w-full border rounded p-2" name="categories" required />
         </div>
         <div>
-          <label className="block mb-1">Supported languages (comma-separated ISO codes)</label>
-          <input className="w-full border rounded p-2" name="languages_supported" required />
+          <label className="block mb-1">Supported languages (comma-separated 2-letter codes, e.g., en,ar,es)</label>
+          <input className="w-full border rounded p-2" name="languages_supported" placeholder="en,ar" required />
         </div>
         <button className="px-4 py-2 bg-primary text-white rounded" type="submit">Submit</button>
       </form>
