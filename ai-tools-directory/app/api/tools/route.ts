@@ -8,7 +8,8 @@ export async function GET(req: Request) {
   const q = searchParams.get('q') ?? undefined
   const category = searchParams.get('category') ?? undefined
   const pricing = searchParams.get('pricing') ?? undefined as any
-  const has_api = searchParams.get('has_api') ?? undefined
+  const has_api_param = searchParams.get('has_api')
+  const has_api = (has_api_param === 'true' || has_api_param === 'false') ? has_api_param : undefined
   const language = searchParams.get('language') ?? undefined
   const sort = (searchParams.get('sort') ?? undefined) as any
   const page = Number(searchParams.get('page') ?? '1')

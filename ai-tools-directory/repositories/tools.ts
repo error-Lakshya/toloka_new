@@ -3,10 +3,10 @@ import { prisma } from '../lib/db'
 export interface SearchParams {
   q?: string
   category?: string // category slug
-  pricing?: 'free'|'paid'|'freemium'|'subscription'|'one_time'
-  has_api?: 'true'|'false'
+  pricing?: 'free' | 'paid' | 'freemium' | 'subscription' | 'one_time'
+  has_api?: 'true' | 'false'
   language?: string // e.g., 'ar'
-  sort?: 'alphabetical'|'latest'|'popularity'
+  sort?: 'alphabetical' | 'latest' | 'popularity'
   page?: number
   pageSize?: number
 }
@@ -51,14 +51,14 @@ export async function searchTools(params: SearchParams) {
       WHERE tsv @@ plainto_tsquery('simple', ${q})
       LIMIT ${pageSize} OFFSET ${skip}
     `
-    const idList = ids.map(r => r.tool_id)
+    const idList = ids.map((r: { tool_id: string }) => r.tool_id)
     let tools = await prisma.tool.findMany({
       where: { ...where, id: { in: idList } },
       include: { categories: { include: { category: true } } },
       orderBy: orderBy ? [orderBy] : undefined
     })
     if (params.category) {
-      tools = tools.filter(t => t.categories.some(tc => tc.category.slug === params.category))
+      tools = tools.filter((t: any) => t.categories.some((tc: any) => tc.category.slug === params.category))
     }
     // Count total (approx via count on ids in match)
     const totalMatch = await prisma.$queryRaw<Array<{ count: number }>>`
@@ -78,7 +78,7 @@ export async function searchTools(params: SearchParams) {
   })
   let filtered = tools
   if (params.category) {
-    filtered = tools.filter(t => t.categories.some(tc => tc.category.slug === params.category))
+    filtered = tools.filter((t: any) => t.categories.some((tc: any) => tc.category.slug === params.category))
   }
   const total = await prisma.tool.count({ where })
   return { items: filtered, page, pageSize, total }

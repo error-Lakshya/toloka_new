@@ -35,11 +35,11 @@ model Tool {
   official_url       String
   pricing_model      PricingModel
   has_api            Boolean  @default(false)
-  tags               String[] @db.Text[]
-  languages_supported String[] @db.Text[]
+  tags               String[]
+  languages_supported String[]
   media              Json
-  pros               String[] @db.Text[]
-  cons               String[] @db.Text[]
+  pros               String[]
+  cons               String[]
   popularity_score   Float?
   source_citation    Json
   created_at         DateTime @default(now())

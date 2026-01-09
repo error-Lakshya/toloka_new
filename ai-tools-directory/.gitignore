@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.env
+.env.local
+.env.production
+*.log
+build_log*.txt
+.vercel
+.DS_Store
+*.lock
